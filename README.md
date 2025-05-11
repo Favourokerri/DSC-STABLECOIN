@@ -1,66 +1,119 @@
-## Foundry
+# 🪙 Decentralized Stable Coin System (DSC)
 
-**Foundry is a blazing fast, portable and modular toolkit for Ethereum application development written in Rust.**
+## Overview
 
-Foundry consists of:
+The **Decentralized Stable Coin System (DSC)** is a minimal, algorithmic, and exogenously collateralized stablecoin protocol pegged to the USD. It includes:
 
--   **Forge**: Ethereum testing framework (like Truffle, Hardhat and DappTools).
--   **Cast**: Swiss army knife for interacting with EVM smart contracts, sending transactions and getting chain data.
--   **Anvil**: Local Ethereum node, akin to Ganache, Hardhat Network.
--   **Chisel**: Fast, utilitarian, and verbose solidity REPL.
+* `DecentralizedStableCoin`: An ERC20 token that represents the stablecoin (DSC).
+* `DSCEngine`: The core engine that manages collateral deposits, minting, redemption, and liquidation.
 
-## Documentation
+Users must remain overcollateralized to avoid liquidation, and health factors are enforced to maintain system stability.
 
-https://book.getfoundry.sh/
+---
 
-## Usage
+## Getting Started
 
-### Build
+Ensure you have [Foundry](https://book.getfoundry.sh/) installed. If not:
 
-```shell
-$ forge build
+```bash
+curl -L https://foundry.paradigm.xyz | bash
+foundryup
 ```
 
-### Test
+### 1. Install Dependencies
 
-```shell
-$ forge test
+```bash
+forge install
 ```
 
-### Format
+### 2. Set Up Environment (Optional for Mainnet Forking)
 
-```shell
-$ forge fmt
+```bash
+cp .env.example .env
 ```
 
-### Gas Snapshots
+Then edit `.env` to include:
 
-```shell
-$ forge snapshot
+```env
+MAINNET_RPC_URL=<your_rpc_url>
+PRIVATE_KEY=<your_private_key>
+ETHERSCAN_API_KEY=<your_key> # If using verification
 ```
 
-### Anvil
+### 3. Run Tests
 
-```shell
-$ anvil
+```bash
+forge test -vv
 ```
 
-### Deploy
+---
 
-```shell
-$ forge script script/Counter.s.sol:CounterScript --rpc-url <your_rpc_url> --private-key <your_private_key>
+## Contracts
+
+### 🔹 `DecentralizedStableCoin.sol`
+
+* Standard ERC20 token with `mint()` and `burn()` restricted to the owner (`DSCEngine`).
+
+### 🔸 `DSCEngine.sol`
+
+Core logic for:
+
+* Collateral deposits
+* DSC minting & burning
+* Collateral redemption
+* Health factor enforcement
+* Liquidation of undercollateralized accounts
+
+---
+
+## Key Constants
+
+| Constant                | Value      | Description                                     |
+| ----------------------- | ---------- | ----------------------------------------------- |
+| `LIQUIDATION_THRESHOLD` | 50         | Collateral must be worth 200% of the debt       |
+| `LIQUIDATION_BONUS`     | 10         | Liquidators get a 10% bonus                     |
+| `MINIMUM_HEALTH_FACTOR` | 1e18 (1.0) | Minimum safe health factor to avoid liquidation |
+
+---
+
+## Example Usage
+
+```solidity
+// 1. Deposit collateral
+dsce.depositCollateral(WETH, 10 ether);
+
+// 2. Mint stablecoins
+dsce.mintDsc(5000e18);
+
+// 3. Burn stablecoins
+dsce.burnDsc(1000e18);
+
+// 4. Redeem collateral
+dsce.redeemCollateral(WETH, 1 ether);
+
+// 5. Liquidate user
+dsce.liquidate(WETH, userToLiquidate, 2500e18);
 ```
 
-### Cast
+---
 
-```shell
-$ cast <subcommand>
+## Testing Notes
+
+* All tests are located in `test/` and use Forge’s cheatcodes and mainnet forking.
+* Tests cover collateralization logic, edge cases, and liquidation flows.
+
+```bash
+forge test -vv
 ```
 
-### Help
+---
 
-```shell
-$ forge --help
-$ anvil --help
-$ cast --help
+## Deployment
+
+You can deploy using Forge scripts:
+
+```bash
+forge script script/Deploy.s.sol:Deploy --rpc-url $MAINNET_RPC_URL --private-key $PRIVATE_KEY --broadcast --verify
 ```
+
+---
