@@ -26,21 +26,8 @@ foundryup
 forge install
 ```
 
-### 2. Set Up Environment (Optional for Mainnet Forking)
 
-```bash
-cp .env.example .env
-```
-
-Then edit `.env` to include:
-
-```env
-MAINNET_RPC_URL=<your_rpc_url>
-PRIVATE_KEY=<your_private_key>
-ETHERSCAN_API_KEY=<your_key> # If using verification
-```
-
-### 3. Run Tests
+### 2. Run Tests
 
 ```bash
 forge test -vv
