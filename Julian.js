@@ -38,9 +38,6 @@ number < 0 ? console.log("Negative") : console.log("Positive");
 
 // (3) Password Length
 
-// Note: Your instructions mentioned checking if the length is at least 8 characters, 
-// so I used the >= 8 comparison to be precise.
-
 let password = "myPassword123";
 
 // If / Else Solution
